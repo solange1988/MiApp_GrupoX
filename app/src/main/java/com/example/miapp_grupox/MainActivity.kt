@@ -6,8 +6,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.miapp_grupox.ui.theme.MiApp_GrupoXTheme
-import com.example.miapp_grupox.ui.theme.HomeScreen
+import com.example.miapp_grupox.ui.theme.RolSelectionScreen
+import com.example.miapp_grupox.ui.theme.OperarioScreen
+import com.example.miapp_grupox.ui.theme.SupervisorScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -15,16 +20,25 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MiApp_GrupoXTheme {
-                HomeScreen()
+                // Controlador de navegación: administra el cambio entre pantallas
+                val navController = rememberNavController()
+
+                // NavHost define todas las "rutas" posibles de la app
+                NavHost(
+                    navController = navController,
+                    startDestination = "roles"  // pantalla inicial
+                ) {
+                    composable("roles") {
+                        RolSelectionScreen(navController = navController)
+                    }
+                    composable("operario") {
+                        OperarioScreen(navController = navController)
+                    }
+                    composable("supervisor") {
+                        SupervisorScreen()
+                    }
+                }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MiApp_GrupoXTheme {
-        HomeScreen()
     }
 }
