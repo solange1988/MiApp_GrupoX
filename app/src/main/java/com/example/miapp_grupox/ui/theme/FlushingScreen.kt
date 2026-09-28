@@ -1,6 +1,6 @@
 package com.example.miapp_grupox.ui.theme
 
-
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -22,7 +22,6 @@ fun FlushingScreen() {
     val repository = BebederoRepository()
     val lineas = repository.obtenerLineas()
 
-    // Estado del formulario: qué línea se eligió y si ya se registró
     var lineaSeleccionada by remember { mutableStateOf("") }
     var observacion by remember { mutableStateOf("") }
     var registroExitoso by remember { mutableStateOf(false) }
@@ -44,7 +43,6 @@ fun FlushingScreen() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Un botón por cada línea disponible (forma simple de "seleccionar")
         lineas.forEach { linea ->
             Button(
                 onClick = {
@@ -62,7 +60,6 @@ fun FlushingScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Campo de texto para la observación
         OutlinedTextField(
             value = observacion,
             onValueChange = {
@@ -74,7 +71,6 @@ fun FlushingScreen() {
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Mensaje de error si falta completar algo
         if (error) {
             Text(
                 text = "Debe seleccionar una línea y escribir una observación.",
@@ -84,7 +80,6 @@ fun FlushingScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Botón para confirmar el registro
         Button(
             onClick = {
                 if (lineaSeleccionada.isEmpty() || observacion.isBlank()) {
@@ -102,8 +97,8 @@ fun FlushingScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Mensaje de confirmación visual
-        if (registroExitoso) {
+        // Mensaje de confirmación visual, con animación de aparición
+        AnimatedVisibility(visible = registroExitoso) {
             Text(
                 text = "✅ Flushing registrado en $lineaSeleccionada",
                 color = androidx.compose.ui.graphics.Color(0xFF2E7D32)
