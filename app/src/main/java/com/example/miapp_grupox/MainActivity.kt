@@ -12,6 +12,7 @@ import com.example.miapp_grupox.ui.theme.RolSelectionScreen
 import com.example.miapp_grupox.ui.theme.OperarioScreen
 import com.example.miapp_grupox.ui.theme.SupervisorScreen
 import com.example.miapp_grupox.ui.theme.TemperaturasScreen
+import com.example.miapp_grupox.ui.theme.AlertasScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,13 +20,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MiApp_GrupoXTheme {
-                // Controlador de navegación: administra el cambio entre pantallas
                 val navController = rememberNavController()
 
-                // NavHost define todas las "rutas" posibles de la app
                 NavHost(
                     navController = navController,
-                    startDestination = "roles"  // pantalla inicial
+                    startDestination = "roles"
                 ) {
                     composable("roles") {
                         RolSelectionScreen(navController = navController)
@@ -38,6 +37,9 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("temperaturas") {
                         TemperaturasScreen()
+                    }
+                    composable("alertas") {
+                        AlertasScreen()
                     }
                 }
             }
