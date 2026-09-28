@@ -13,6 +13,7 @@ import com.example.miapp_grupox.ui.theme.OperarioScreen
 import com.example.miapp_grupox.ui.theme.SupervisorScreen
 import com.example.miapp_grupox.ui.theme.TemperaturasScreen
 import com.example.miapp_grupox.ui.theme.AlertasScreen
+import com.example.miapp_grupox.ui.theme.FlushingScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,6 +41,9 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("alertas") {
                         AlertasScreen()
+                    }
+                    composable("flushing") {
+                        FlushingScreen()
                     }
                 }
             }
