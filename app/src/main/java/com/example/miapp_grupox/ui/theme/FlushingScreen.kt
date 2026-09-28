@@ -11,16 +11,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.miapp_grupox.repository.BebederoRepository
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.miapp_grupox.viewmodel.BebederoViewModel
 
-// Pantalla para registrar que se realizó un flushing en una línea específica
 @Composable
-fun FlushingScreen() {
-    val repository = BebederoRepository()
-    val lineas = repository.obtenerLineas()
+fun FlushingScreen(viewModel: BebederoViewModel = viewModel()) {
+    val lineas = viewModel.obtenerLineas()
 
     var lineaSeleccionada by remember { mutableStateOf("") }
     var observacion by remember { mutableStateOf("") }
@@ -82,13 +80,10 @@ fun FlushingScreen() {
 
         Button(
             onClick = {
-                if (lineaSeleccionada.isEmpty() || observacion.isBlank()) {
-                    error = true
-                    registroExitoso = false
-                } else {
-                    error = false
-                    registroExitoso = true
-                }
+                // La validación ahora vive en el ViewModel, no aquí
+                val exito = viewModel.registrarFlushing(lineaSeleccionada, observacion)
+                error = !exito
+                registroExitoso = exito
             },
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -97,7 +92,6 @@ fun FlushingScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Mensaje de confirmación visual, con animación de aparición
         AnimatedVisibility(visible = registroExitoso) {
             Text(
                 text = "✅ Flushing registrado en $lineaSeleccionada",

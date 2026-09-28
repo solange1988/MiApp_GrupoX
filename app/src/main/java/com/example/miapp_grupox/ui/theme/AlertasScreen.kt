@@ -1,7 +1,5 @@
 package com.example.miapp_grupox.ui.theme
 
-
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -10,13 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.miapp_grupox.repository.BebederoRepository
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.miapp_grupox.viewmodel.BebederoViewModel
 
-// Pantalla que muestra únicamente las líneas con alertas (Advertencia o Crítico)
 @Composable
-fun AlertasScreen() {
-    val repository = BebederoRepository()
-    val alertas = repository.obtenerAlertas()
+fun AlertasScreen(viewModel: BebederoViewModel = viewModel()) {
+    val alertas = viewModel.obtenerAlertas()
 
     Column(
         modifier = Modifier
@@ -30,15 +27,14 @@ fun AlertasScreen() {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Si no hay alertas, mostramos un mensaje tranquilizador
         if (alertas.isEmpty()) {
             Text(text = "No hay alertas activas en este momento.")
         } else {
             alertas.forEach { linea ->
                 val colorEstado = if (linea.estado == "Critico") {
-                    Color(0xFFC62828) // rojo
+                    Color(0xFFC62828)
                 } else {
-                    Color(0xFFFFA500) // naranjo
+                    Color(0xFFFFA500)
                 }
 
                 Card(

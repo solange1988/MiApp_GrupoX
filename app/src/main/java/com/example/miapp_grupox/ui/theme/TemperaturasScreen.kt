@@ -1,7 +1,5 @@
 package com.example.miapp_grupox.ui.theme
 
-
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -10,14 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.miapp_grupox.repository.BebederoRepository
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.miapp_grupox.viewmodel.BebederoViewModel
 
-// Pantalla que muestra la temperatura de todas las líneas de bebederos
 @Composable
-fun TemperaturasScreen() {
-    // Por ahora obtenemos los datos directo del Repository
-    val repository = BebederoRepository()
-    val lineas = repository.obtenerLineas()
+fun TemperaturasScreen(viewModel: BebederoViewModel = viewModel()) {
+    val lineas = viewModel.obtenerLineas()
 
     Column(
         modifier = Modifier
@@ -31,14 +27,11 @@ fun TemperaturasScreen() {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Recorre la lista y muestra una tarjeta por cada línea
         lineas.forEach { linea ->
-
-            // Elige el color según el estado de la línea
             val colorEstado = when (linea.estado) {
-                "Normal" -> Color(0xFF2E7D32)       // verde
-                "Advertencia" -> Color(0xFFFFA500)  // naranjo
-                else -> Color(0xFFC62828)           // rojo (Critico)
+                "Normal" -> Color(0xFF2E7D32)
+                "Advertencia" -> Color(0xFFFFA500)
+                else -> Color(0xFFC62828)
             }
 
             Card(
