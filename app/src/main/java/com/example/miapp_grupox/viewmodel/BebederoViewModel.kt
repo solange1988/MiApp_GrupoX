@@ -46,4 +46,9 @@ class BebederoViewModel(application: Application) : AndroidViewModel(application
             onResultado(true)
         }
     }
+
+    // Trae todos los flushing guardados hasta ahora
+    suspend fun obtenerHistorialFlushing(): List<FlushingEntity> {
+        return db.flushingDao().obtenerTodos()
+    }
 }

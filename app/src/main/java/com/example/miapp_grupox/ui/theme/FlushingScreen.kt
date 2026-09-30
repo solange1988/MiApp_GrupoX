@@ -3,18 +3,16 @@ package com.example.miapp_grupox.ui.theme
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.miapp_grupox.model.FlushingEntity
 import com.example.miapp_grupox.viewmodel.BebederoViewModel
 
 @Composable
@@ -25,6 +23,17 @@ fun FlushingScreen(navController: NavController, viewModel: BebederoViewModel = 
     var observacion by remember { mutableStateOf("") }
     var registroExitoso by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf(false) }
+    var historial by remember { mutableStateOf<List<FlushingEntity>>(emptyList()) }
+
+    // Función para recargar el historial desde la base de datos
+    suspend fun recargarHistorial() {
+        historial = viewModel.obtenerHistorialFlushing()
+    }
+
+    // Carga el historial la primera vez que se abre la pantalla
+    LaunchedEffect(Unit) {
+        recargarHistorial()
+    }
 
     Column(
         modifier = Modifier
@@ -81,7 +90,6 @@ fun FlushingScreen(navController: NavController, viewModel: BebederoViewModel = 
 
         Button(
             onClick = {
-                // Ahora el resultado llega de forma asíncrona (se guarda en Room)
                 viewModel.registrarFlushing(lineaSeleccionada, observacion) { exito ->
                     error = !exito
                     registroExitoso = exito
@@ -99,6 +107,39 @@ fun FlushingScreen(navController: NavController, viewModel: BebederoViewModel = 
                 text = "✅ Flushing registrado en $lineaSeleccionada",
                 color = androidx.compose.ui.graphics.Color(0xFF2E7D32)
             )
+        }
+
+        // Cuando se registra con éxito, recarga el historial para mostrarlo actualizado
+        LaunchedEffect(registroExitoso) {
+            if (registroExitoso) {
+                recargarHistorial()
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Text(
+            text = "Historial de Flushing",
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        if (historial.isEmpty()) {
+            Text(text = "Aún no hay registros guardados.")
+        } else {
+            historial.forEach { registro ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp)
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Text(text = "${registro.nombreLinea} — ${registro.fecha}")
+                        Text(text = registro.observacion)
+                    }
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
