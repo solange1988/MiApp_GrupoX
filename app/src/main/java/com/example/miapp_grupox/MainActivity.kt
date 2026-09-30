@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.miapp_grupox.model.DatabaseProvider
 import com.example.miapp_grupox.ui.theme.MiApp_GrupoXTheme
 import com.example.miapp_grupox.ui.theme.RolSelectionScreen
 import com.example.miapp_grupox.ui.theme.OperarioScreen
@@ -19,6 +20,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // Inicializa la base de datos una sola vez, al arrancar la app
+        DatabaseProvider.obtenerBaseDeDatos(applicationContext)
+
         setContent {
             MiApp_GrupoXTheme {
                 val navController = rememberNavController()
@@ -34,16 +39,16 @@ class MainActivity : ComponentActivity() {
                         OperarioScreen(navController = navController)
                     }
                     composable("supervisor") {
-                        SupervisorScreen()
+                        SupervisorScreen(navController = navController)
                     }
                     composable("temperaturas") {
-                        TemperaturasScreen()
+                        TemperaturasScreen(navController = navController)
                     }
                     composable("alertas") {
-                        AlertasScreen()
+                        AlertasScreen(navController = navController)
                     }
                     composable("flushing") {
-                        FlushingScreen()
+                        FlushingScreen(navController = navController)
                     }
                 }
             }

@@ -1,6 +1,7 @@
 package com.example.miapp_grupox.ui.theme
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -9,10 +10,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.miapp_grupox.viewmodel.BebederoViewModel
 
 @Composable
-fun AlertasScreen(viewModel: BebederoViewModel = viewModel()) {
+fun AlertasScreen(navController: NavController, viewModel: BebederoViewModel = viewModel()) {
     val alertas = viewModel.obtenerAlertas()
 
     Column(
@@ -56,6 +58,12 @@ fun AlertasScreen(viewModel: BebederoViewModel = viewModel()) {
                     }
                 }
             }
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Button(onClick = { navController.popBackStack() }) {
+            Text("Volver")
         }
     }
 }

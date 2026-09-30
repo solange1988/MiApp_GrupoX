@@ -14,10 +14,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.miapp_grupox.viewmodel.BebederoViewModel
 
 @Composable
-fun FlushingScreen(viewModel: BebederoViewModel = viewModel()) {
+fun FlushingScreen(navController: NavController, viewModel: BebederoViewModel = viewModel()) {
     val lineas = viewModel.obtenerLineas()
 
     var lineaSeleccionada by remember { mutableStateOf("") }
@@ -80,7 +81,6 @@ fun FlushingScreen(viewModel: BebederoViewModel = viewModel()) {
 
         Button(
             onClick = {
-                // La validación ahora vive en el ViewModel, no aquí
                 val exito = viewModel.registrarFlushing(lineaSeleccionada, observacion)
                 error = !exito
                 registroExitoso = exito
@@ -97,6 +97,12 @@ fun FlushingScreen(viewModel: BebederoViewModel = viewModel()) {
                 text = "✅ Flushing registrado en $lineaSeleccionada",
                 color = androidx.compose.ui.graphics.Color(0xFF2E7D32)
             )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(onClick = { navController.popBackStack() }) {
+            Text("Volver")
         }
     }
 }
