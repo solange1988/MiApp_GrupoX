@@ -81,9 +81,11 @@ fun FlushingScreen(navController: NavController, viewModel: BebederoViewModel = 
 
         Button(
             onClick = {
-                val exito = viewModel.registrarFlushing(lineaSeleccionada, observacion)
-                error = !exito
-                registroExitoso = exito
+                // Ahora el resultado llega de forma asíncrona (se guarda en Room)
+                viewModel.registrarFlushing(lineaSeleccionada, observacion) { exito ->
+                    error = !exito
+                    registroExitoso = exito
+                }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
