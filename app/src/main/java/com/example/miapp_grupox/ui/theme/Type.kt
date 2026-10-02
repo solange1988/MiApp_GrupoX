@@ -1,34 +1,41 @@
-package com.example.miapp_grupox.ui.theme
+
+package miapp_grupox.ui.theme
 
 import androidx.compose.material3.Typography
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// Set of Material typography styles to start with
-val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    )
-    /* Other default text styles to override
-    titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
+val AppTypography = Typography(
+    headlineLarge = androidx.compose.ui.text.TextStyle(
+        fontSize = 28.sp,
+        fontWeight = FontWeight.Bold,
+        color = TextPrimary
     ),
-    labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
+    headlineMedium = androidx.compose.ui.text.TextStyle(
+        fontSize = 23.sp,
+        fontWeight = FontWeight.Bold,
+        color = TextPrimary
+    ),
+    titleLarge = androidx.compose.ui.text.TextStyle(
+        fontSize = 19.sp,
+        fontWeight = FontWeight.SemiBold,
+        color = TextPrimary
+    ),
+    titleMedium = androidx.compose.ui.text.TextStyle(
+        fontSize = 16.sp,
+        fontWeight = FontWeight.SemiBold,
+        color = TextPrimary
+    ),
+    bodyLarge = androidx.compose.ui.text.TextStyle(
+        fontSize = 15.sp,
+        color = TextPrimary
+    ),
+    bodyMedium = androidx.compose.ui.text.TextStyle(
+        fontSize = 13.sp,
+        color = TextSecondary
+    ),
+    labelLarge = androidx.compose.ui.text.TextStyle(
+        fontSize = 14.sp,
+        fontWeight = FontWeight.Bold
     )
-    */
 )
