@@ -1,10 +1,23 @@
+
 package com.example.miapp_grupox.model
 
-// Representa una línea de bebederos dentro de una granja y galpón
-data class LineaBebedero(
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "lineas_bebedero")
+data class LineBebedero(
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     val granja: String,
     val galpon: String,
-    val nombre: String,
+    val linea: String,
     val temperatura: Double,
-    val estado: String   // "Normal", "Advertencia" o "Critico"
-)
+    val fecha: String
+) {
+    val estado: String
+        get() = when {
+            temperatura >= 30.0 -> "Crítico"
+            temperatura >= 27.0 -> "Advertencia"
+            else -> "Normal"
+        }
+}
