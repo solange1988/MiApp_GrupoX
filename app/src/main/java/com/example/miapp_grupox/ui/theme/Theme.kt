@@ -1,5 +1,5 @@
 
-package miapp_grupox.ui.theme
+package com.example.miapp_grupox.ui.theme
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
