@@ -1,5 +1,3 @@
-#!/usr/bin/env kotlin
-
 
 package miapp_grupox.ui.theme
 
