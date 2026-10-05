@@ -1,19 +1,24 @@
-package com.example.miapp_grupox.model
 
+package com.example.miapp_grupox.model
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
-// Define las operaciones permitidas sobre la tabla de flushing
 @Dao
-interface FlushingDao {
+interface FlusingDao {
 
-    // Inserta un nuevo registro de flushing
-    @Insert
-    suspend fun insertar(flushing: FlushingEntity)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertar(registro: FlusingEntity)
 
-    // Trae todos los registros guardados, ordenados del más nuevo al más viejo
-    @Query("SELECT * FROM flushing_registros ORDER BY id DESC")
-    suspend fun obtenerTodos(): List<FlushingEntity>
+    @Query("SELECT * FROM registros_flushing ORDER BY id DESC")
+    fun obtenerTodos(): Flow<List<FlusingEntity>>
+
+    @Query("DELETE FROM registros_flushing WHERE id = :id")
+    suspend fun eliminar(id: Int)
+
+    @Query("SELECT COUNT(*) FROM registros_flushing")
+    suspend fun contar(): Int
 }
