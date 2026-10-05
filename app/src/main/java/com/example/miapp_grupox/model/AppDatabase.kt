@@ -1,11 +1,18 @@
-package com.example.miapp_grupox.model
 
+package com.example.miapp_grupox.model
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
 
-// Define la base de datos completa de la app: qué tablas tiene y su versión
-@Database(entities = [FlushingEntity::class], version = 1)
+@Database(
+    entities = [
+        LineBebedero::class,
+        FlusingEntity::class
+    ],
+    version = 1,
+    exportSchema = false
+)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun flushingDao(): FlushingDao
+    abstract fun bebederoDao(): BebederoDao
+    abstract fun flusingDao(): FlusingDao
 }
