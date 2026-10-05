@@ -1,15 +1,18 @@
-package com.example.miapp_grupox.model
 
+package com.example.miapp_grupox.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-// Representa un registro de flushing guardado en la base de datos local
-@Entity(tableName = "flushing_registros")
-data class FlushingEntity(
+@Entity(tableName = "registros_flushing")
+data class FlusingEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val nombreLinea: String,
-    val observacion: String,
+    val granja: String,
+    val galpon: String,
+    val linea: String,
+    val responsable: String,
+    val motivo: String,
+    val observaciones: String,
     val fecha: String
 )
