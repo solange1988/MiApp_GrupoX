@@ -1,54 +1,72 @@
+
 package com.example.miapp_grupox.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.miapp_grupox.model.DatabaseProvider
-import com.example.miapp_grupox.model.FlushingEntity
-import com.example.miapp_grupox.model.LineaBebedero
+import com.example.miapp_grupox.model.LineBebedero
 import com.example.miapp_grupox.repository.BebederoRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// ViewModel: hace de puente entre los datos (Repository + Room) y las pantallas (UI)
-class BebederoViewModel(application: Application) : AndroidViewModel(application) {
+class BebederoViewModel(
+    application: Application
+) : AndroidViewModel(application) {
 
-    private val repository = BebederoRepository()
-    private val db = DatabaseProvider.obtenerBaseDeDatos(application)
+    private val repository = BebederoRepository(
+        DatabaseProvider.getDatabase(application).bebederoDao()
+    )
 
-    fun obtenerLineas(): List<LineaBebedero> {
-        return repository.obtenerLineas()
-    }
+    private val _lineas =
+        MutableStateFlow<List<LineBebedero>>(emptyList())
 
-    fun obtenerAlertas(): List<LineaBebedero> {
-        return repository.obtenerAlertas()
-    }
+    val lineas: StateFlow<List<LineBebedero>> =
+        _lineas.asStateFlow()
 
-    // Valida y guarda el flushing de verdad en la base de datos local
-    fun registrarFlushing(nombreLinea: String, observacion: String, onResultado: (Boolean) -> Unit) {
-        if (nombreLinea.isEmpty() || observacion.isBlank()) {
-            onResultado(false)
-            return
-        }
-
-        val fechaActual = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
-
+    init {
         viewModelScope.launch {
-            db.flushingDao().insertar(
-                FlushingEntity(
-                    nombreLinea = nombreLinea,
-                    observacion = observacion,
-                    fecha = fechaActual
+            repository.inicializarDatos()
+
+            repository.obtenerLineas().collect { datos ->
+                _lineas.value = datos
+            }
+        }
+    }
+
+    fun guardarTemperatura(
+        granja: String,
+        galpon: String,
+        linea: String,
+        temperatura: Double
+    ) {
+        viewModelScope.launch {
+            val existente = _lineas.value.firstOrNull {
+                it.granja == granja &&
+                        it.galpon == galpon &&
+                        it.linea == linea
+            }
+
+            val fecha = SimpleDateFormat(
+                "dd/MM/yyyy HH:mm",
+                Locale.getDefault()
+            ).format(Date())
+
+            repository.guardar(
+                LineBebedero(
+                    id = existente?.id ?: 0,
+                    granja = granja,
+                    galpon = galpon,
+                    linea = linea,
+                    temperatura = temperatura,
+                    fecha = fecha
                 )
             )
-            onResultado(true)
         }
-    }
-
-    // Trae todos los flushing guardados hasta ahora
-    suspend fun obtenerHistorialFlushing(): List<FlushingEntity> {
-        return db.flushingDao().obtenerTodos()
     }
 }
