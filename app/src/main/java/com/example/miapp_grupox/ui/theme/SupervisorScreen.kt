@@ -1,38 +1,141 @@
+
 package com.example.miapp_grupox.ui.theme
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
+import com.example.miapp_grupox.model.FlusingEntity
+import com.example.miapp_grupox.model.LineBebedero
 
 @Composable
-fun SupervisorScreen(navController: NavController) {
+fun SupervisorScreen(
+    lineas: List<LineBebedero>,
+    registros: List<FlusingEntity>,
+    onTemperaturas: () -> Unit,
+    onAlertas: () -> Unit,
+    onFlushing: () -> Unit,
+    onInicio: () -> Unit
+) {
+    val criticas = lineas.count { it.estado == "Crítico" }
+    val advertencias = lineas.count { it.estado == "Advertencia" }
+    val normales = lineas.count { it.estado == "Normal" }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+            .background(AppBackground)
     ) {
-        Text(
-            text = "Pantalla Supervisor",
-            style = MaterialTheme.typography.headlineMedium
+        AriztiaHeader(
+            titulo = "Panel del supervisor",
+            subtitulo = "Estado general de las instalaciones"
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        LazyColumn(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            item {
+                AriztiaSectionTitle(
+                    "Resumen operativo",
+                    "Estado de las líneas registradas"
+                )
+            }
 
-        Text(text = "Bienvenido Supervisor")
+            item {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    AriztiaMetricCard(
+                        titulo = "Críticas",
+                        valor = criticas.toString(),
+                        descripcion = "Revisar",
+                        color = EstadoCritico,
+                        modifier = Modifier.weight(1f)
+                    )
 
-        Spacer(modifier = Modifier.height(20.dp))
+                    AriztiaMetricCard(
+                        titulo = "Advertencias",
+                        valor = advertencias.toString(),
+                        descripcion = "Seguimiento",
+                        color = EstadoAdvertenciaTexto,
+                        modifier = Modifier.weight(1f)
+                    )
 
-        // Botón para volver a la pantalla anterior
-        Button(onClick = { navController.popBackStack() }) {
-            Text("Volver")
+                    AriztiaMetricCard(
+                        titulo = "Normales",
+                        valor = normales.toString(),
+                        descripcion = "Estables",
+                        color = EstadoNormal,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+            item {
+                AriztiaWhiteCard {
+                    Text(
+                        "Temperaturas",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    Text(
+                        "${lineas.size} líneas registradas",
+                        color = TextSecondary
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    AriztiaPrimaryButton(
+                        "Consultar temperaturas",
+                        onTemperaturas
+                    )
+                }
+            }
+
+            item {
+                AriztiaWhiteCard {
+                    Text(
+                        "Centro de alertas",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    Text(
+                        "${criticas + advertencias} líneas requieren revisión.",
+                        color = TextSecondary
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    AriztiaPrimaryButton(
+                        "Ver alertas",
+                        onAlertas
+                    )
+                }
+            }
+
+            item {
+                AriztiaWhiteCard {
+                    Text(
+                        "Historial de flushing",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    Text(
+                        "${registros.size} registros guardados",
+                        color = TextSecondary
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    AriztiaSecondaryButton(
+                        "Consultar flushing",
+                        onFlushing
+                    )
+                }
+            }
+
+            item {
+                AriztiaSecondaryButton(
+                    "Volver al inicio",
+                    onInicio
+                )
+                Spacer(Modifier.height(12.dp))
+            }
         }
     }
 }

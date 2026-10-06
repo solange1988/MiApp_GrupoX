@@ -1,70 +1,77 @@
+
 package com.example.miapp_grupox.ui.theme
 
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.miapp_grupox.R
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TopAppBar
+import androidx.compose.ui.unit.sp
 
-// Pantalla principal (Home) de la app, construida con Jetpack Compose
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
-    // Scaffold da la estructura base: una barra superior + el contenido
-    Scaffold(
-        topBar = {
-            // Barra superior con el título de la app
-            TopAppBar(title = { Text("Mi App Kotlin") })
-        }
-    ) { innerPadding ->
-        // Column organiza los elementos uno debajo del otro
+fun HomeScreen(onContinuar: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppBackground)
+    ) {
+        AriztiaHeader(
+            titulo = "Control sanitario",
+            subtitulo = "Monitoreo de bebederos y flushing"
+        )
+
         Column(
             modifier = Modifier
-                .padding(innerPadding)   // respeta el espacio de la barra superior
-                .fillMaxSize()            // ocupa toda la pantalla disponible
-                .padding(16.dp),          // margen extra alrededor de todo
-            verticalArrangement = Arrangement.spacedBy(20.dp) // espacio uniforme entre elementos
+                .fillMaxSize()
+                .padding(24.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Texto de bienvenida
-            Text(
-                text = "¡Bienvenido!",
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            // Botón simple (todavía sin acción real)
-            Button(onClick = { /* acción futura */ }) {
-                Text("Presióname")
-            }
-            // Fila con dos textos lado a lado, usando Row
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+            Surface(
+                shape = RoundedCornerShape(24.dp),
+                color = AriztiaLightRed
             ) {
-                Text(text = "Grupo X")
                 Text(
-                    text = "MVVM + Compose",
-                    color = MaterialTheme.colorScheme.secondary
+                    "AB",
+                    fontSize = 42.sp,
+                    fontWeight = FontWeight.Black,
+                    color = AriztiaRed,
+                    modifier = Modifier.padding(28.dp)
                 )
             }
 
-            // Imagen del logo de la app
-            Image(
-                painter = painterResource(id = R.drawable.logo),
-                contentDescription = "Logo de la app",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                contentScale = ContentScale.Fit
+            Spacer(Modifier.height(24.dp))
+
+            Text(
+                "Bienvenido",
+                style = MaterialTheme.typography.headlineLarge
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                "Sistema de monitoreo y registro operativo",
+                color = TextSecondary
+            )
+
+            Spacer(Modifier.height(30.dp))
+
+            AriztiaPrimaryButton(
+                texto = "Ingresar a la aplicación",
+                onClick = onContinuar
+            )
+
+            Spacer(Modifier.height(24.dp))
+
+            Text(
+                "MiApp_GrupoX · Prototipo académico",
+                fontSize = 12.sp,
+                color = Color.Gray
             )
         }
     }

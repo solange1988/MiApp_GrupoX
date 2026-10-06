@@ -1,54 +1,60 @@
+
 package com.example.miapp_grupox.ui.theme
 
-
-
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 
-// Pantalla inicial: el usuario elige si entra como Operario o Supervisor
 @Composable
-fun RolSelectionScreen(navController: NavController, modifier: Modifier = Modifier) {
+fun RolSelectionScreen(
+    onOperario: () -> Unit,
+    onSupervisor: () -> Unit
+) {
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+            .background(AppBackground)
     ) {
-        // Título de la pantalla
-        Text(
-            text = "Seleccione su Rol",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 32.dp)
+        AriztiaHeader(
+            titulo = "Seleccionar perfil",
+            subtitulo = "Ingresa según tu función"
         )
 
-        // Botón para entrar como Operario
-        Button(
-            onClick = {
-                navController.navigate("operario")
-            },
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
+                .fillMaxSize()
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text("Operario")
-        }
+            AriztiaSectionTitle(
+                "¿Cómo deseas ingresar?",
+                "Selecciona el panel que necesitas utilizar."
+            )
 
-        // Botón para entrar como Supervisor
-        Button(
-            onClick = {
-                navController.navigate("supervisor")
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Supervisor")
+            AriztiaWhiteCard {
+                Text("Operario", style = MaterialTheme.typography.titleLarge)
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    "Registrar temperaturas y flushing, consultar líneas y revisar alertas.",
+                    color = TextSecondary
+                )
+                Spacer(Modifier.height(16.dp))
+                AriztiaPrimaryButton("Ingresar como operario", onOperario)
+            }
+
+            AriztiaWhiteCard {
+                Text("Supervisor", style = MaterialTheme.typography.titleLarge)
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    "Consultar estados, alertas y registros históricos.",
+                    color = TextSecondary
+                )
+                Spacer(Modifier.height(16.dp))
+                AriztiaSecondaryButton("Ingresar como supervisor", onSupervisor)
+            }
         }
     }
 }

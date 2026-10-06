@@ -1,64 +1,111 @@
+
 package com.example.miapp_grupox.ui.theme
 
-
-
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 
-// Pantalla del Operario: acceso a alertas, registro de flushing y temperaturas
 @Composable
-fun OperarioScreen(navController: NavController) {
+fun OperarioScreen(
+    onTemperaturas: () -> Unit,
+    onFlushing: () -> Unit,
+    onAlertas: () -> Unit,
+    onInicio: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+            .background(AppBackground)
     ) {
-        Text(
-            text = "Pantalla Operario",
-            style = MaterialTheme.typography.headlineMedium
+        AriztiaHeader(
+            titulo = "Panel del operario",
+            subtitulo = "Control diario de las instalaciones"
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Text(text = "Bienvenido Operario")
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // Botón: ver alertas activas
-        Button(
-            onClick = { navController.navigate("alertas") },
-            modifier = Modifier.fillMaxWidth()
+        LazyColumn(
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            Text("Alertas Activas")
+            item {
+                AriztiaSectionTitle(
+                    "Acciones operativas",
+                    "Selecciona la actividad que deseas realizar."
+                )
+            }
+
+            item {
+                AccionOperario(
+                    titulo = "Temperaturas",
+                    descripcion = "Registrar y consultar mediciones",
+                    onClick = onTemperaturas
+                )
+            }
+
+            item {
+                AccionOperario(
+                    titulo = "Registro de flushing",
+                    descripcion = "Registrar y consultar limpiezas",
+                    onClick = onFlushing
+                )
+            }
+
+            item {
+                AccionOperario(
+                    titulo = "Alertas",
+                    descripcion = "Revisar advertencias y estados críticos",
+                    onClick = onAlertas
+                )
+            }
+
+            item {
+                AriztiaSecondaryButton(
+                    texto = "Volver al inicio",
+                    onClick = onInicio
+                )
+            }
         }
+    }
+}
 
-        Spacer(modifier = Modifier.height(10.dp))
+@Composable
+private fun AccionOperario(
+    titulo: String,
+    descripcion: String,
+    onClick: () -> Unit
+) {
+    Card(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = CardBackground
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp
+        )
+    ) {
+        Column(Modifier.padding(18.dp)) {
+            Text(
+                titulo,
+                style = MaterialTheme.typography.titleLarge
+            )
 
-        // Botón: registrar flushing
-        Button(
-            onClick = { navController.navigate("flushing") },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Registrar Flushing")
-        }
+            Spacer(Modifier.height(5.dp))
 
-        Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                descripcion,
+                color = TextSecondary
+            )
 
-        // Botón: registrar/consultar temperaturas
-        Button(
-            onClick = { navController.navigate("temperaturas") },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Registrar Temperaturas")
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                "Abrir →",
+                color = AriztiaRed
+            )
         }
     }
 }
