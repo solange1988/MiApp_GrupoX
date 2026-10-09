@@ -1,4 +1,3 @@
-
 package com.example.miapp_grupox
 
 import android.os.Bundle
@@ -10,6 +9,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.miapp_grupox.ui.theme.AlertasScreen
 import com.example.miapp_grupox.ui.theme.FlusingScreen
 import com.example.miapp_grupox.ui.theme.HomeScreen
+import com.example.miapp_grupox.ui.theme.LoginScreen
 import com.example.miapp_grupox.ui.theme.MiAppGrupoXTheme
 import com.example.miapp_grupox.ui.theme.OperarioScreen
 import com.example.miapp_grupox.ui.theme.RolSelectionScreen
@@ -40,8 +40,13 @@ class MainActivity : ComponentActivity() {
 
                 when (pantalla) {
                     "inicio" -> HomeScreen {
-                        pantalla = "roles"
+                        pantalla = "login"
                     }
+
+                    "login" -> LoginScreen(
+                        onLoginExitoso = { pantalla = "roles" },
+                        onVolver = { pantalla = "inicio" }
+                    )
 
                     "roles" -> RolSelectionScreen(
                         onOperario = { pantalla = "operario" },
@@ -97,7 +102,7 @@ class MainActivity : ComponentActivity() {
                     )
 
                     else -> HomeScreen {
-                        pantalla = "roles"
+                        pantalla = "login"
                     }
                 }
             }
