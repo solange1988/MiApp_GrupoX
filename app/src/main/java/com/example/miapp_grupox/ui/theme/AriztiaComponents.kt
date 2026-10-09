@@ -254,7 +254,7 @@ fun AriztiaPrimaryButton(
             .height(52.dp),
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = AriztiaRed,
+            containerColor = AriztiaButtonRed,
             contentColor = Color.White
         )
     ) {
@@ -285,7 +285,7 @@ fun AriztiaSecondaryButton(
             .height(50.dp),
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.outlinedButtonColors(
-            contentColor = AriztiaRed
+            contentColor = AriztiaButtonRed
         )
     ) {
 

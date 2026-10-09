@@ -1,4 +1,3 @@
-
 package com.example.miapp_grupox.ui.theme
 
 import androidx.compose.foundation.background
@@ -8,8 +7,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.miapp_grupox.model.FlusingEntity
+import com.example.miapp_grupox.model.OpcionesBebedero
+import com.example.miapp_grupox.model.vibrarConfirmacion
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -20,205 +23,222 @@ fun FlusingScreen(
     onGuardar: (FlusingEntity) -> Unit,
     onVolver: () -> Unit
 ) {
-    var granja by remember { mutableStateOf("Granja Melipilla") }
-    var galpon by remember { mutableStateOf("Galpón 1") }
-    var linea by remember { mutableStateOf("Línea 1") }
+    val context = LocalContext.current
+
+    // Estado y corrutina para mostrar mensajes al pie de la pantalla (Snackbar)
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    var granja by remember { mutableStateOf(OpcionesBebedero.granjas[0]) }
+    var galpon by remember { mutableStateOf(OpcionesBebedero.galpones[0]) }
+    var linea by remember { mutableStateOf(OpcionesBebedero.lineas[0]) }
+    var motivo by remember { mutableStateOf("") }
     var responsable by remember { mutableStateOf("") }
-    var motivo by remember { mutableStateOf("Limpieza preventiva") }
     var observaciones by remember { mutableStateOf("") }
-    var mensaje by remember { mutableStateOf("") }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(AppBackground)
-    ) {
-        AriztiaHeader(
-            "Registro de flushing",
-            "Control de limpieza de líneas de bebederos"
-        )
+    // Un estado de error por campo, para marcarlo en rojo
+    var errorMotivo by remember { mutableStateOf(false) }
+    var errorResponsable by remember { mutableStateOf(false) }
+    var errorObservaciones by remember { mutableStateOf(false) }
 
-        LazyColumn(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        containerColor = AppBackground
+    ) { paddingValues ->
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
         ) {
-            item {
-                AriztiaSectionTitle(
-                    "Nuevo registro",
-                    "Completa los datos de la actividad realizada."
-                )
-            }
+            AriztiaHeader(
+                "Registro de flushing",
+                "Control de limpieza de líneas de bebederos"
+            )
 
-            item {
-                AriztiaWhiteCard {
-                    OutlinedTextField(
-                        value = granja,
-                        onValueChange = { granja = it },
-                        label = { Text("Granja") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
-                    )
-
-                    Spacer(Modifier.height(8.dp))
-
-                    OutlinedTextField(
-                        value = galpon,
-                        onValueChange = { galpon = it },
-                        label = { Text("Galpón") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
-                    )
-
-                    Spacer(Modifier.height(8.dp))
-
-                    OutlinedTextField(
-                        value = linea,
-                        onValueChange = { linea = it },
-                        label = { Text("Línea de bebederos") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
-                    )
-
-                    Spacer(Modifier.height(8.dp))
-
-                    OutlinedTextField(
-                        value = responsable,
-                        onValueChange = { responsable = it },
-                        label = { Text("Responsable") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
-                    )
-
-                    Spacer(Modifier.height(12.dp))
-
-                    Text(
-                        "Motivo del flushing",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-
-                    listOf(
-                        "Limpieza preventiva",
-                        "Temperatura elevada",
-                        "Mantenimiento",
-                        "Alerta sanitaria",
-                        "Otro"
-                    ).forEach { opcion ->
-                        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                            RadioButton(
-                                selected = motivo == opcion,
-                                onClick = { motivo = opcion }
-                            )
-                            Text(opcion)
-                        }
-                    }
-
-                    Spacer(Modifier.height(8.dp))
-
-                    OutlinedTextField(
-                        value = observaciones,
-                        onValueChange = { observaciones = it },
-                        label = { Text("Observaciones") },
-                        modifier = Modifier.fillMaxWidth(),
-                        minLines = 3
-                    )
-
-                    Spacer(Modifier.height(8.dp))
-
-                    Text(
-                        "Fecha y hora: ${fechaActual()}",
-                        color = TextSecondary
-                    )
-
-                    if (mensaje.isNotBlank()) {
-                        Spacer(Modifier.height(8.dp))
-                        Text(mensaje, color = AriztiaRed)
-                    }
-
-                    Spacer(Modifier.height(12.dp))
-
-
-                    AriztiaPrimaryButton(
-                        texto = "Guardar registro",
-                        onClick = {
-                            if (
-                                granja.isBlank() ||
-                                galpon.isBlank() ||
-                                linea.isBlank() ||
-                                responsable.isBlank()
-                            ) {
-                                mensaje = "Completa granja, galpón, línea y responsable."
-                            } else {
-                                val registro = FlusingEntity(
-                                    granja = granja.trim(),
-                                    galpon = galpon.trim(),
-                                    linea = linea.trim(),
-                                    responsable = responsable.trim(),
-                                    motivo = motivo,
-                                    observaciones = observaciones.trim(),
-                                    fecha = fechaActual()
-                                )
-
-                                onGuardar(registro)
-                                responsable = ""
-                                observaciones = ""
-                                mensaje = "Registro enviado para guardar."
-                            }
-                        }
+            LazyColumn(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                item {
+                    AriztiaSectionTitle(
+                        "Nuevo registro",
+                        "Completa los datos de la actividad realizada."
                     )
                 }
-            }
 
-            item {
-                AriztiaSectionTitle(
-                    "Historial de flushing",
-                    "${registros.size} registros guardados"
-                )
-            }
-
-            if (registros.isEmpty()) {
                 item {
                     AriztiaWhiteCard {
-                        Text("Sin registros", style = MaterialTheme.typography.titleMedium)
+                        AriztiaDropdown(
+                            label = "Granja",
+                            opciones = OpcionesBebedero.granjas,
+                            seleccion = granja,
+                            onSeleccion = { granja = it }
+                        )
+
+                        Spacer(Modifier.height(8.dp))
+
+                        AriztiaDropdown(
+                            label = "Galpón",
+                            opciones = OpcionesBebedero.galpones,
+                            seleccion = galpon,
+                            onSeleccion = { galpon = it }
+                        )
+
+                        Spacer(Modifier.height(8.dp))
+
+                        AriztiaDropdown(
+                            label = "Línea de bebederos",
+                            opciones = OpcionesBebedero.lineas,
+                            seleccion = linea,
+                            onSeleccion = { linea = it }
+                        )
+
+                        Spacer(Modifier.height(8.dp))
+
+                        OutlinedTextField(
+                            value = responsable,
+                            onValueChange = {
+                                responsable = it
+                                errorResponsable = false
+                            },
+                            label = { Text("Responsable") },
+                            isError = errorResponsable,
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true
+                        )
+
+                        Spacer(Modifier.height(8.dp))
+
+                        AriztiaDropdown(
+                            label = "Motivo del flushing",
+                            opciones = OpcionesBebedero.motivosFlushing,
+                            seleccion = motivo,
+                            onSeleccion = {
+                                motivo = it
+                                errorMotivo = false
+                            },
+                            isError = errorMotivo
+                        )
+
+                        Spacer(Modifier.height(8.dp))
+
+                        OutlinedTextField(
+                            value = observaciones,
+                            onValueChange = {
+                                observaciones = it
+                                errorObservaciones = false
+                            },
+                            label = { Text("Observaciones") },
+                            isError = errorObservaciones,
+                            modifier = Modifier.fillMaxWidth(),
+                            minLines = 3
+                        )
+
+                        Spacer(Modifier.height(8.dp))
+
                         Text(
-                            "Los registros que guardes aparecerán aquí.",
+                            "Fecha y hora: ${fechaActual()}",
                             color = TextSecondary
+                        )
+
+                        Spacer(Modifier.height(12.dp))
+
+                        AriztiaPrimaryButton(
+                            texto = "Guardar registro",
+                            onClick = {
+                                errorMotivo = motivo.isBlank()
+                                errorResponsable = responsable.isBlank()
+                                errorObservaciones = observaciones.isBlank()
+
+                                if (errorMotivo || errorResponsable || errorObservaciones) {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            "Todos los campos son obligatorios"
+                                        )
+                                    }
+                                } else {
+                                    onGuardar(
+                                        FlusingEntity(
+                                            granja = granja,
+                                            galpon = galpon,
+                                            linea = linea,
+                                            responsable = responsable.trim(),
+                                            motivo = motivo,
+                                            observaciones = observaciones.trim(),
+                                            fecha = fechaActual()
+                                        )
+                                    )
+
+                                    // Vibración como confirmación táctil al guardar
+                                    vibrarConfirmacion(context)
+
+                                    responsable = ""
+                                    motivo = ""
+                                    observaciones = ""
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            "Flushing registrado correctamente"
+                                        )
+                                    }
+                                }
+                            }
                         )
                     }
                 }
-            }
 
-            items(registros, key = { it.id }) { registro ->
-                AriztiaWhiteCard {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
+                item {
+                    AriztiaSectionTitle(
+                        "Historial de flushing",
+                        "${registros.size} registros guardados"
+                    )
+                }
+
+                if (registros.isEmpty()) {
+                    item {
+                        AriztiaWhiteCard {
+                            Text("Sin registros", style = MaterialTheme.typography.titleMedium)
                             Text(
-                                "${registro.granja} · ${registro.galpon}",
-                                style = MaterialTheme.typography.titleMedium
+                                "Los registros que guardes aparecerán aquí.",
+                                color = TextSecondary
                             )
-                            Text(registro.linea, color = AriztiaRed)
                         }
-
-                        EstadoBadge("Registrado")
-                    }
-
-                    HorizontalDivider(Modifier.padding(vertical = 10.dp))
-
-                    TextoRegistro("Responsable", registro.responsable)
-                    TextoRegistro("Motivo", registro.motivo)
-                    TextoRegistro("Fecha", registro.fecha)
-
-                    if (registro.observaciones.isNotBlank()) {
-                        TextoRegistro("Observaciones", registro.observaciones)
                     }
                 }
-            }
 
-            item {
-                AriztiaSecondaryButton("Volver", onVolver)
-                Spacer(Modifier.height(12.dp))
+                items(registros, key = { it.id }) { registro ->
+                    AriztiaWhiteCard {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    "${registro.granja} · ${registro.galpon}",
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Text(registro.linea, color = AriztiaRed)
+                            }
+
+                            EstadoBadge("Registrado")
+                        }
+
+                        HorizontalDivider(Modifier.padding(vertical = 10.dp))
+
+                        TextoRegistro("Responsable", registro.responsable)
+                        TextoRegistro("Motivo", registro.motivo)
+                        TextoRegistro("Fecha", registro.fecha)
+
+                        if (registro.observaciones.isNotBlank()) {
+                            TextoRegistro("Observaciones", registro.observaciones)
+                        }
+                    }
+                }
+
+                item {
+                    AriztiaSecondaryButton("Volver", onVolver)
+                    Spacer(Modifier.height(12.dp))
+                }
             }
         }
     }
