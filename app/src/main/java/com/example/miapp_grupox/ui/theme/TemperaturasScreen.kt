@@ -5,7 +5,6 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -19,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.example.miapp_grupox.model.LineBebedero
 import com.example.miapp_grupox.model.OpcionesBebedero
 import com.example.miapp_grupox.model.RangosTemperatura
+import com.example.miapp_grupox.model.ValidadorTemperatura
 import com.example.miapp_grupox.model.vibrarConfirmacion
 import kotlinx.coroutines.launch
 
@@ -38,7 +38,9 @@ fun TemperaturasScreen(
     var galpon by remember { mutableStateOf(OpcionesBebedero.galpones[0]) }
     var linea by remember { mutableStateOf(OpcionesBebedero.lineas[0]) }
     var rango by remember { mutableStateOf("") }
-    var hayError by remember { mutableStateOf(false) }
+
+    // Errores por campo que entrega el validador (lógica fuera de la pantalla)
+    var errores by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -98,23 +100,30 @@ fun TemperaturasScreen(
                             seleccion = rango,
                             onSeleccion = {
                                 rango = it
-                                hayError = false
+                                errores = errores - "rango"
                             },
-                            isError = hayError
+                            isError = errores.containsKey("rango")
                         )
+
+                        errores["rango"]?.let { mensaje ->
+                            Spacer(Modifier.height(4.dp))
+                            Text(mensaje, color = AriztiaRed)
+                        }
 
                         Spacer(Modifier.height(12.dp))
 
                         AriztiaLightButton(
                             texto = "Guardar temperatura",
                             onClick = {
+                                // La validación se hace en ValidadorTemperatura, no aquí
+                                val resultado = ValidadorTemperatura.validar(rango)
+                                errores = resultado.errores
                                 val valor = RangosTemperatura.valorDe(rango)
 
-                                if (valor == null) {
-                                    hayError = true
+                                if (!resultado.valido || valor == null) {
                                     scope.launch {
                                         snackbarHostState.showSnackbar(
-                                            "Selecciona un rango de temperatura"
+                                            "Revisa los campos marcados"
                                         )
                                     }
                                 } else {
@@ -124,7 +133,6 @@ fun TemperaturasScreen(
                                     vibrarConfirmacion(context)
 
                                     rango = ""
-                                    hayError = false
                                     scope.launch {
                                         snackbarHostState.showSnackbar(
                                             "Temperatura registrada correctamente"

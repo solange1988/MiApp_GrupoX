@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.example.miapp_grupox.model.FlusingEntity
 import com.example.miapp_grupox.model.OpcionesBebedero
+import com.example.miapp_grupox.model.ValidadorFlushing
 import com.example.miapp_grupox.model.vibrarConfirmacion
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -50,11 +51,8 @@ fun FlusingScreen(
     // Foto de evidencia tomada con la cámara (se guarda como Bitmap)
     var foto by remember { mutableStateOf<Bitmap?>(null) }
 
-    // Un estado de error por campo, para marcarlo en rojo
-    var errorMotivo by remember { mutableStateOf(false) }
-    var errorResponsable by remember { mutableStateOf(false) }
-    var errorObservaciones by remember { mutableStateOf(false) }
-    var errorFoto by remember { mutableStateOf(false) }
+    // Errores por campo que entrega el validador (lógica fuera de la pantalla)
+    var errores by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
 
     // Recurso nativo: abre la aplicación de cámara y devuelve la foto
     val camaraLauncher = rememberLauncherForActivityResult(
@@ -62,7 +60,7 @@ fun FlusingScreen(
     ) { bitmap ->
         if (bitmap != null) {
             foto = bitmap
-            errorFoto = false
+            errores = errores - "foto"
         }
     }
 
@@ -154,10 +152,13 @@ fun FlusingScreen(
                             value = responsable,
                             onValueChange = {
                                 responsable = it
-                                errorResponsable = false
+                                errores = errores - "responsable"
                             },
                             label = { Text("Responsable") },
-                            isError = errorResponsable,
+                            isError = errores.containsKey("responsable"),
+                            supportingText = errores["responsable"]?.let { mensaje ->
+                                { Text(mensaje) }
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true
                         )
@@ -170,10 +171,15 @@ fun FlusingScreen(
                             seleccion = motivo,
                             onSeleccion = {
                                 motivo = it
-                                errorMotivo = false
+                                errores = errores - "motivo"
                             },
-                            isError = errorMotivo
+                            isError = errores.containsKey("motivo")
                         )
+
+                        errores["motivo"]?.let { mensaje ->
+                            Spacer(Modifier.height(4.dp))
+                            Text(mensaje, color = AriztiaRed)
+                        }
 
                         Spacer(Modifier.height(8.dp))
 
@@ -181,10 +187,13 @@ fun FlusingScreen(
                             value = observaciones,
                             onValueChange = {
                                 observaciones = it
-                                errorObservaciones = false
+                                errores = errores - "observaciones"
                             },
                             label = { Text("Observaciones") },
-                            isError = errorObservaciones,
+                            isError = errores.containsKey("observaciones"),
+                            supportingText = errores["observaciones"]?.let { mensaje ->
+                                { Text(mensaje) }
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             minLines = 3
                         )
@@ -215,12 +224,9 @@ fun FlusingScreen(
                             }
                         }
 
-                        if (errorFoto) {
+                        errores["foto"]?.let { mensaje ->
                             Spacer(Modifier.height(4.dp))
-                            Text(
-                                "Falta la foto de evidencia",
-                                color = AriztiaRed
-                            )
+                            Text(mensaje, color = AriztiaRed)
                         }
 
                         Spacer(Modifier.height(8.dp))
@@ -235,17 +241,19 @@ fun FlusingScreen(
                         AriztiaPrimaryButton(
                             texto = "Guardar registro",
                             onClick = {
-                                errorMotivo = motivo.isBlank()
-                                errorResponsable = responsable.isBlank()
-                                errorObservaciones = observaciones.isBlank()
-                                errorFoto = foto == null
+                                // La validación se hace en ValidadorFlushing, no aquí
+                                val resultado = ValidadorFlushing.validar(
+                                    responsable = responsable,
+                                    motivo = motivo,
+                                    observaciones = observaciones,
+                                    tieneFoto = foto != null
+                                )
+                                errores = resultado.errores
 
-                                if (errorMotivo || errorResponsable ||
-                                    errorObservaciones || errorFoto
-                                ) {
+                                if (!resultado.valido) {
                                     scope.launch {
                                         snackbarHostState.showSnackbar(
-                                            "Todos los campos son obligatorios"
+                                            "Revisa los campos marcados"
                                         )
                                     }
                                 } else {
