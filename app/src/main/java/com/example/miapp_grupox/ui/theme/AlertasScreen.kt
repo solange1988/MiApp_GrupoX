@@ -1,4 +1,3 @@
-
 package com.example.miapp_grupox.ui.theme
 
 import androidx.compose.foundation.background
@@ -10,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.miapp_grupox.model.LineBebedero
+import com.example.miapp_grupox.model.RangosTemperatura
 
 @Composable
 fun AlertasScreen(
@@ -81,9 +81,13 @@ fun AlertasScreen(
 
                     Spacer(Modifier.height(10.dp))
 
+                    Text("Rango de temperatura", color = TextSecondary)
+
+                    // Se muestra el rango, no el número exacto
                     Text(
-                        "Temperatura: ${String.format(java.util.Locale.getDefault(), "%.1f", linea.temperatura)} °C",
-                        style = MaterialTheme.typography.titleLarge
+                        RangosTemperatura.etiquetaDe(linea.temperatura),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = if (linea.estado == "Crítico") EstadoCritico else EstadoAdvertenciaTexto
                     )
 
                     Text("Fecha: ${linea.fecha}", color = TextSecondary)

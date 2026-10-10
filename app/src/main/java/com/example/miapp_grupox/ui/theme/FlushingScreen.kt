@@ -312,7 +312,7 @@ fun FlusingScreen(
                                 Text(registro.linea, color = AriztiaRed)
                             }
 
-                            EstadoBadge("Registrado")
+                            EstadoFlushingAnimado(registro.id)
                         }
 
                         HorizontalDivider(Modifier.padding(vertical = 10.dp))
