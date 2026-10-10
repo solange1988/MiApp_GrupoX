@@ -1,12 +1,19 @@
 package com.example.miapp_grupox.ui.theme
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.miapp_grupox.model.LineBebedero
@@ -151,40 +158,89 @@ fun TemperaturasScreen(
 
 @Composable
 private fun TarjetaLinea(linea: LineBebedero) {
-    val color = when (linea.estado) {
+    // Controla si el detalle de la tarjeta está visible
+    var mostrarDetalle by remember { mutableStateOf(false) }
+
+    val colorTexto = when (linea.estado) {
         "Crítico" -> EstadoCritico
         "Advertencia" -> EstadoAdvertenciaTexto
         else -> EstadoNormal
     }
 
-    AriztiaWhiteCard {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
+    // Animación: el color de fondo cambia suavemente según el estado
+    val colorCard by animateColorAsState(
+        targetValue = when (linea.estado) {
+            "Crítico" -> Color(0xFFFFCDD2)      // rojo claro
+            "Advertencia" -> Color(0xFFFFF3CD)  // amarillo
+            else -> Color(0xFFE8F5E9)           // verde claro
+        },
+        animationSpec = tween(durationMillis = 600),
+        label = "colorCard"
+    )
+
+    // Animación: la sombra de la tarjeta sube al abrir el detalle
+    val elevacion by animateDpAsState(
+        targetValue = if (mostrarDetalle) 8.dp else 2.dp,
+        label = "elevacionCard"
+    )
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .animateContentSize(), // la tarjeta crece/encoge con animación
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = colorCard),
+        elevation = CardDefaults.cardElevation(defaultElevation = elevacion)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        linea.granja,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        "${linea.galpon} · ${linea.linea}",
+                        color = TextSecondary
+                    )
+                }
+                EstadoBadge(linea.estado)
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            Text("Rango de temperatura", color = TextSecondary)
+
+            Text(
+                RangosTemperatura.etiquetaDe(linea.temperatura),
+                style = MaterialTheme.typography.headlineSmall,
+                color = colorTexto
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            TextButton(onClick = { mostrarDetalle = !mostrarDetalle }) {
                 Text(
-                    linea.granja,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(
-                    "${linea.galpon} · ${linea.linea}",
-                    color = TextSecondary
+                    if (mostrarDetalle) "Ocultar detalle" else "Ver detalle",
+                    color = AriztiaButtonRed
                 )
             }
-            EstadoBadge(linea.estado)
+
+            // Animación: el detalle aparece y desaparece con efecto
+            AnimatedVisibility(visible = mostrarDetalle) {
+                Column {
+                    Text("Última medición: ${linea.fecha}", color = TextSecondary)
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "Criterio: Normal menos de 27 °C · Advertencia de 27 a 29,9 °C · Crítico desde 30 °C",
+                        color = TextSecondary
+                    )
+                }
+            }
         }
-
-        Spacer(Modifier.height(12.dp))
-
-        Text("Rango de temperatura", color = TextSecondary)
-
-        Text(
-            RangosTemperatura.etiquetaDe(linea.temperatura),
-            style = MaterialTheme.typography.headlineSmall,
-            color = color
-        )
-
-        Text("Última medición: ${linea.fecha}", color = TextSecondary)
     }
 }
