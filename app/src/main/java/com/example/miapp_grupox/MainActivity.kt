@@ -2,6 +2,7 @@ package com.example.miapp_grupox
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.*
@@ -34,8 +35,19 @@ class MainActivity : ComponentActivity() {
                 val registros by mainViewModel.registros
                     .collectAsStateWithLifecycle()
 
-                var pantalla by remember {
-                    mutableStateOf("inicio")
+                var pantalla by remember { mutableStateOf("inicio") }
+
+                // Perfil con el que se ingresó: define a qué panel se vuelve
+                var perfil by remember { mutableStateOf("operario") }
+
+                // Botón "atrás" del celular: vuelve a la pantalla anterior
+                BackHandler(enabled = pantalla != "inicio") {
+                    pantalla = when (pantalla) {
+                        "login" -> "inicio"
+                        "roles" -> "login"
+                        "operario", "supervisor" -> "roles"
+                        else -> perfil // temperaturas, alertas y flushing
+                    }
                 }
 
                 when (pantalla) {
@@ -49,8 +61,14 @@ class MainActivity : ComponentActivity() {
                     )
 
                     "roles" -> RolSelectionScreen(
-                        onOperario = { pantalla = "operario" },
-                        onSupervisor = { pantalla = "supervisor" }
+                        onOperario = {
+                            perfil = "operario"
+                            pantalla = "operario"
+                        },
+                        onSupervisor = {
+                            perfil = "supervisor"
+                            pantalla = "supervisor"
+                        }
                     )
 
                     "operario" -> OperarioScreen(
@@ -79,16 +97,12 @@ class MainActivity : ComponentActivity() {
                                 temperatura
                             )
                         },
-                        onVolver = {
-                            pantalla = "operario"
-                        }
+                        onVolver = { pantalla = perfil }
                     )
 
                     "alertas" -> AlertasScreen(
                         lineas = lineas,
-                        onVolver = {
-                            pantalla = "operario"
-                        }
+                        onVolver = { pantalla = perfil }
                     )
 
                     "flushing" -> FlusingScreen(
@@ -96,9 +110,7 @@ class MainActivity : ComponentActivity() {
                         onGuardar = { registro ->
                             mainViewModel.guardarRegistro(registro)
                         },
-                        onVolver = {
-                            pantalla = "operario"
-                        }
+                        onVolver = { pantalla = perfil }
                     )
 
                     else -> HomeScreen {

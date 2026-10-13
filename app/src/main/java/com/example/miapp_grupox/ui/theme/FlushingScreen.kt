@@ -11,6 +11,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -148,19 +151,16 @@ fun FlusingScreen(
 
                         Spacer(Modifier.height(8.dp))
 
-                        OutlinedTextField(
+                        // Responsable: ícono de persona y error por campo
+                        AriztiaTextField(
                             value = responsable,
                             onValueChange = {
                                 responsable = it
                                 errores = errores - "responsable"
                             },
-                            label = { Text("Responsable") },
-                            isError = errores.containsKey("responsable"),
-                            supportingText = errores["responsable"]?.let { mensaje ->
-                                { Text(mensaje) }
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true
+                            label = "Responsable",
+                            iconoInicial = Icons.Default.Person,
+                            error = errores["responsable"]
                         )
 
                         Spacer(Modifier.height(8.dp))
@@ -183,28 +183,24 @@ fun FlusingScreen(
 
                         Spacer(Modifier.height(8.dp))
 
-                        OutlinedTextField(
+                        // Observaciones: ícono de lápiz y error por campo
+                        AriztiaTextField(
                             value = observaciones,
                             onValueChange = {
                                 observaciones = it
                                 errores = errores - "observaciones"
                             },
-                            label = { Text("Observaciones") },
-                            isError = errores.containsKey("observaciones"),
-                            supportingText = errores["observaciones"]?.let { mensaje ->
-                                { Text(mensaje) }
-                            },
-                            modifier = Modifier.fillMaxWidth(),
+                            label = "Observaciones",
+                            iconoInicial = Icons.Default.Edit,
+                            error = errores["observaciones"],
+                            singleLine = false,
                             minLines = 3
                         )
 
                         Spacer(Modifier.height(12.dp))
 
-                        // Botón que abre la cámara (evidencia del flushing)
-                        AriztiaSecondaryButton(
-                            texto = "📷 Tomar foto de evidencia",
-                            onClick = { tomarFoto() }
-                        )
+                        // Botón con ícono de cámara (evidencia del flushing)
+                        AriztiaCameraButton(onClick = { tomarFoto() })
 
                         // La foto aparece con animación debajo del botón
                         AnimatedVisibility(visible = foto != null) {

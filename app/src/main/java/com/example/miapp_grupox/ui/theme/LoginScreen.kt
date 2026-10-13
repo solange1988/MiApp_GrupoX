@@ -1,11 +1,14 @@
 package com.example.miapp_grupox.ui.theme
 
-
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -54,26 +57,21 @@ fun LoginScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 AriztiaWhiteCard {
-                    OutlinedTextField(
+                    // Usuario: ícono de persona y advertencia si hay error
+                    AriztiaTextField(
                         value = usuario,
                         onValueChange = {
                             usuario = it
                             errorUsuario = null
                         },
-                        label = { Text("Usuario") },
-                        isError = errorUsuario != null,
-                        trailingIcon = if (errorUsuario != null) {
-                            { Text("⚠") }
-                        } else null,
-                        supportingText = errorUsuario?.let { mensaje ->
-                            { Text(mensaje) }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
+                        label = "Usuario",
+                        iconoInicial = Icons.Default.Person,
+                        error = errorUsuario
                     )
 
                     Spacer(Modifier.height(8.dp))
 
+                    // Contraseña: candado y botón para ver u ocultar
                     OutlinedTextField(
                         value = clave,
                         onValueChange = {
@@ -81,7 +79,32 @@ fun LoginScreen(
                             errorClave = null
                         },
                         label = { Text("Contraseña") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Lock,
+                                contentDescription = null
+                            )
+                        },
+                        trailingIcon = {
+                            IconButton(onClick = { verClave = !verClave }) {
+                                Icon(
+                                    imageVector = if (verClave) {
+                                        Icons.Default.VisibilityOff
+                                    } else {
+                                        Icons.Default.Visibility
+                                    },
+                                    contentDescription = if (verClave) {
+                                        "Ocultar contraseña"
+                                    } else {
+                                        "Mostrar contraseña"
+                                    }
+                                )
+                            }
+                        },
                         isError = errorClave != null,
+                        supportingText = errorClave?.let { mensaje ->
+                            { Text(mensaje) }
+                        },
                         visualTransformation = if (verClave) {
                             VisualTransformation.None
                         } else {
@@ -90,14 +113,6 @@ fun LoginScreen(
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Password
                         ),
-                        trailingIcon = {
-                            TextButton(onClick = { verClave = !verClave }) {
-                                Text(if (verClave) "Ocultar" else "Ver")
-                            }
-                        },
-                        supportingText = errorClave?.let { mensaje ->
-                            { Text(mensaje) }
-                        },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
