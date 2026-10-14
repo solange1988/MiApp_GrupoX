@@ -11,8 +11,8 @@ Aplicación móvil Android (Kotlin + Jetpack Compose) para consultar la temperat
 
 | Nombre | Usuario de GitHub |
 |---|---|
-| solange valladares] | solange1988 |
-| [ángel villegas] | Pitikleiiinn |
+| solange valladares | solange1988 |
+| ángel villegas | Pitikleiiinn |
 
 **Equipo N°:7
 
@@ -105,4 +105,7 @@ Después de iniciar sesión se elige el perfil con el que se quiere ingresar.
 - Guardar la foto de evidencia junto con el registro del historial.
 - Consumir una API real del sistema de monitoreo de temperatura.
 - Inicio de sesión con usuarios y perfiles definidos en el sistema, en lugar de datos de prueba.
+
+## enlace trello
+-https://trello.com/b/K0H7qjht/kotlin
 
