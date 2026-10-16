@@ -1,6 +1,5 @@
 package com.example.miapp_grupox.model
 
-
 // Resultado de una validación: errores por campo (clave = nombre del campo)
 data class ResultadoValidacion(
     val errores: Map<String, String> = emptyMap()
@@ -28,6 +27,16 @@ object ValidadorFlushing {
 
     private val soloLetras = Regex("^[A-Za-zÁÉÍÓÚáéíóúÑñÜü ]+$")
 
+    // Devuelve el mensaje de error o null si la observación es válida
+    fun validarObservacion(observaciones: String): String? {
+        val obs = observaciones.trim()
+        return when {
+            obs.isBlank() -> "Escribe una observación"
+            obs.length < 5 -> "La observación debe tener al menos 5 caracteres"
+            else -> null
+        }
+    }
+
     fun validar(
         responsable: String,
         motivo: String,
@@ -50,12 +59,8 @@ object ValidadorFlushing {
             errores["motivo"] = "Selecciona el motivo del flushing"
         }
 
-        val obs = observaciones.trim()
-        when {
-            obs.isBlank() ->
-                errores["observaciones"] = "Escribe una observación"
-            obs.length < 5 ->
-                errores["observaciones"] = "La observación debe tener al menos 5 caracteres"
+        validarObservacion(observaciones)?.let { mensaje ->
+            errores["observaciones"] = mensaje
         }
 
         if (!tieneFoto) {

@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
@@ -36,6 +37,8 @@ import java.util.Locale
 fun FlusingScreen(
     registros: List<FlusingEntity>,
     onGuardar: (FlusingEntity) -> Unit,
+    onEliminar: (Int) -> Unit,
+    onActualizarObservacion: (FlusingEntity, String) -> Unit,
     onVolver: () -> Unit
 ) {
     val context = LocalContext.current
@@ -56,6 +59,12 @@ fun FlusingScreen(
 
     // Errores por campo que entrega el validador (lógica fuera de la pantalla)
     var errores by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
+
+    // Estado de los diálogos de eliminar y editar del historial
+    var registroAEliminar by remember { mutableStateOf<FlusingEntity?>(null) }
+    var registroEditando by remember { mutableStateOf<FlusingEntity?>(null) }
+    var textoEdicion by remember { mutableStateOf("") }
+    var errorEdicion by remember { mutableStateOf<String?>(null) }
 
     // Recurso nativo: abre la aplicación de cámara y devuelve la foto
     val camaraLauncher = rememberLauncherForActivityResult(
@@ -328,6 +337,42 @@ fun FlusingScreen(
                         if (registro.observaciones.isNotBlank()) {
                             TextoRegistro("Observaciones", registro.observaciones)
                         }
+
+                        Spacer(Modifier.height(8.dp))
+
+                        // Modificar y eliminar un registro del historial
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            OutlinedButton(
+                                onClick = {
+                                    registroEditando = registro
+                                    textoEdicion = registro.observaciones
+                                    errorEdicion = null
+                                },
+                                modifier = Modifier.weight(1f),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = AriztiaButtonRed
+                                )
+                            ) {
+                                Icon(Icons.Default.Edit, contentDescription = null)
+                                Spacer(Modifier.width(6.dp))
+                                Text("Editar")
+                            }
+
+                            OutlinedButton(
+                                onClick = { registroAEliminar = registro },
+                                modifier = Modifier.weight(1f),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = AriztiaButtonRed
+                                )
+                            ) {
+                                Icon(Icons.Default.Delete, contentDescription = null)
+                                Spacer(Modifier.width(6.dp))
+                                Text("Eliminar")
+                            }
+                        }
                     }
                 }
 
@@ -337,6 +382,80 @@ fun FlusingScreen(
                 }
             }
         }
+    }
+
+    // Diálogo de confirmación antes de eliminar un registro
+    registroAEliminar?.let { registro ->
+        AlertDialog(
+            onDismissRequest = { registroAEliminar = null },
+            title = { Text("Eliminar registro") },
+            text = {
+                Text(
+                    "¿Seguro que quieres eliminar el flushing de ${registro.linea} " +
+                            "(${registro.fecha})? Esta acción no se puede deshacer."
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    onEliminar(registro.id)
+                    registroAEliminar = null
+                    scope.launch {
+                        snackbarHostState.showSnackbar("Registro eliminado")
+                    }
+                }) {
+                    Text("Eliminar", color = AriztiaButtonRed)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { registroAEliminar = null }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+
+    // Diálogo para corregir la observación de un registro
+    registroEditando?.let { registro ->
+        AlertDialog(
+            onDismissRequest = { registroEditando = null },
+            title = { Text("Editar observación") },
+            text = {
+                AriztiaTextField(
+                    value = textoEdicion,
+                    onValueChange = {
+                        textoEdicion = it
+                        errorEdicion = null
+                    },
+                    label = "Observaciones",
+                    iconoInicial = Icons.Default.Edit,
+                    error = errorEdicion,
+                    singleLine = false,
+                    minLines = 3
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    // La validación está en ValidadorFlushing, no en la pantalla
+                    val error = ValidadorFlushing.validarObservacion(textoEdicion)
+                    if (error != null) {
+                        errorEdicion = error
+                    } else {
+                        onActualizarObservacion(registro, textoEdicion)
+                        registroEditando = null
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Observación actualizada")
+                        }
+                    }
+                }) {
+                    Text("Guardar", color = AriztiaButtonRed)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { registroEditando = null }) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 }
 

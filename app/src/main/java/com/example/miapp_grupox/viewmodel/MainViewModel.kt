@@ -1,4 +1,3 @@
-
 package com.example.miapp_grupox.viewmodel
 
 import android.app.Application
@@ -37,6 +36,15 @@ class MainViewModel(
     fun guardarRegistro(registro: FlusingEntity) {
         viewModelScope.launch {
             repository.guardarRegistro(registro)
+        }
+    }
+
+    // Corrige solo la observación de un registro ya guardado
+    fun actualizarObservacion(registro: FlusingEntity, nuevaObservacion: String) {
+        viewModelScope.launch {
+            repository.actualizarRegistro(
+                registro.copy(observaciones = nuevaObservacion.trim())
+            )
         }
     }
 

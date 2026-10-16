@@ -6,6 +6,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.miapp_grupox.ui.theme.AlertasScreen
 import com.example.miapp_grupox.ui.theme.FlusingScreen
@@ -35,10 +36,10 @@ class MainActivity : ComponentActivity() {
                 val registros by mainViewModel.registros
                     .collectAsStateWithLifecycle()
 
-                var pantalla by remember { mutableStateOf("inicio") }
+                var pantalla by rememberSaveable { mutableStateOf("inicio") }
 
                 // Perfil con el que se ingresó: define a qué panel se vuelve
-                var perfil by remember { mutableStateOf("operario") }
+                var perfil by rememberSaveable { mutableStateOf("operario") }
 
                 // Botón "atrás" del celular: vuelve a la pantalla anterior
                 BackHandler(enabled = pantalla != "inicio") {
@@ -109,6 +110,12 @@ class MainActivity : ComponentActivity() {
                         registros = registros,
                         onGuardar = { registro ->
                             mainViewModel.guardarRegistro(registro)
+                        },
+                        onEliminar = { id ->
+                            mainViewModel.eliminarRegistro(id)
+                        },
+                        onActualizarObservacion = { registro, nuevaObservacion ->
+                            mainViewModel.actualizarObservacion(registro, nuevaObservacion)
                         },
                         onVolver = { pantalla = perfil }
                     )

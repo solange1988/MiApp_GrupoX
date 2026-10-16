@@ -1,4 +1,3 @@
-
 package com.example.miapp_grupox.repository
 
 import com.example.miapp_grupox.model.FlusingDao
@@ -13,6 +12,9 @@ class MainRepository(
 
     suspend fun guardarRegistro(registro: FlusingEntity) =
         dao.insertar(registro)
+
+    suspend fun actualizarRegistro(registro: FlusingEntity) =
+        dao.actualizar(registro)
 
     suspend fun eliminarRegistro(id: Int) =
         dao.eliminar(id)
