@@ -1,13 +1,13 @@
 package com.example.miapp_grupox.model
 
-
-
-// Resultado de validar el login: errores por campo y mensaje general
+// Resultado de validar el login: errores por campo, mensaje general y perfil
 data class ResultadoLogin(
     val errorUsuario: String? = null,
     val errorClave: String? = null,
     val mensaje: String? = null,
-    val exitoso: Boolean = false
+    val exitoso: Boolean = false,
+    // "operario" o "supervisor" cuando el login es correcto
+    val perfil: String? = null
 )
 
 // Lógica del login, separada de la interfaz
@@ -42,8 +42,9 @@ object LoginValidator {
             )
         }
 
+        // El perfil sale del usuario con el que se ingresó
         return if (usuarios[u] == clave) {
-            ResultadoLogin(exitoso = true)
+            ResultadoLogin(exitoso = true, perfil = u)
         } else {
             ResultadoLogin(mensaje = "Usuario o contraseña incorrectos")
         }

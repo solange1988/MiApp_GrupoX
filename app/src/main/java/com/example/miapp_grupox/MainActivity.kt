@@ -14,7 +14,6 @@ import com.example.miapp_grupox.ui.theme.HomeScreen
 import com.example.miapp_grupox.ui.theme.LoginScreen
 import com.example.miapp_grupox.ui.theme.MiAppGrupoXTheme
 import com.example.miapp_grupox.ui.theme.OperarioScreen
-import com.example.miapp_grupox.ui.theme.RolSelectionScreen
 import com.example.miapp_grupox.ui.theme.SupervisorScreen
 import com.example.miapp_grupox.ui.theme.TemperaturasScreen
 import com.example.miapp_grupox.viewmodel.BebederoViewModel
@@ -45,8 +44,7 @@ class MainActivity : ComponentActivity() {
                 BackHandler(enabled = pantalla != "inicio") {
                     pantalla = when (pantalla) {
                         "login" -> "inicio"
-                        "roles" -> "login"
-                        "operario", "supervisor" -> "roles"
+                        "operario", "supervisor" -> "login"
                         else -> perfil // temperaturas, alertas y flushing
                     }
                 }
@@ -56,20 +54,13 @@ class MainActivity : ComponentActivity() {
                         pantalla = "login"
                     }
 
+                    // El usuario con el que se ingresa decide el panel
                     "login" -> LoginScreen(
-                        onLoginExitoso = { pantalla = "roles" },
-                        onVolver = { pantalla = "inicio" }
-                    )
-
-                    "roles" -> RolSelectionScreen(
-                        onOperario = {
-                            perfil = "operario"
-                            pantalla = "operario"
+                        onLoginExitoso = { perfilIngresado ->
+                            perfil = perfilIngresado
+                            pantalla = perfilIngresado
                         },
-                        onSupervisor = {
-                            perfil = "supervisor"
-                            pantalla = "supervisor"
-                        }
+                        onVolver = { pantalla = "inicio" }
                     )
 
                     "operario" -> OperarioScreen(
