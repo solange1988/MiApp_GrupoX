@@ -12,13 +12,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class MainViewModel(
-    application: Application
-) : AndroidViewModel(application) {
-
-    private val repository = MainRepository(
+class MainViewModel @JvmOverloads constructor(
+    application: Application,
+    private val repository: MainRepository = MainRepository(
         DatabaseProvider.getDatabase(application).flusingDao()
     )
+) : AndroidViewModel(application) {
 
     private val _registros =
         MutableStateFlow<List<FlusingEntity>>(emptyList())
