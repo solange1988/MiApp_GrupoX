@@ -17,6 +17,7 @@ import com.example.miapp_grupox.ui.theme.OperarioScreen
 import com.example.miapp_grupox.ui.theme.RolSelectionScreen
 import com.example.miapp_grupox.ui.theme.SupervisorScreen
 import com.example.miapp_grupox.ui.theme.TemperaturasScreen
+import com.example.miapp_grupox.viewmodel.AlertasViewModel
 import com.example.miapp_grupox.viewmodel.BebederoViewModel
 import com.example.miapp_grupox.viewmodel.MainViewModel
 
@@ -24,6 +25,11 @@ class MainActivity : ComponentActivity() {
 
     private val bebederoViewModel: BebederoViewModel by viewModels()
     private val mainViewModel: MainViewModel by viewModels()
+
+    // Alertas desde ms-monitoreo (con respaldo en Room si no hay conexión)
+    private val alertasViewModel: AlertasViewModel by viewModels {
+        AlertasViewModel.factory(application)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,10 +107,21 @@ class MainActivity : ComponentActivity() {
                         onVolver = { pantalla = perfil }
                     )
 
-                    "alertas" -> AlertasScreen(
-                        lineas = lineas,
-                        onVolver = { pantalla = perfil }
-                    )
+                    "alertas" -> {
+                        val estadoAlertas by alertasViewModel.estado
+                            .collectAsStateWithLifecycle()
+
+                        // Pide las alertas al servidor cada vez que se abre la pantalla
+                        LaunchedEffect(Unit) {
+                            alertasViewModel.cargarAlertas()
+                        }
+
+                        AlertasScreen(
+                            estado = estadoAlertas,
+                            onReintentar = { alertasViewModel.cargarAlertas() },
+                            onVolver = { pantalla = perfil }
+                        )
+                    }
 
                     "flushing" -> FlusingScreen(
                         registros = registros,
