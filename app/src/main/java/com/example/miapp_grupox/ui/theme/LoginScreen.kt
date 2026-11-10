@@ -21,7 +21,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
-    onLoginExitoso: () -> Unit,
+    // Recibe el perfil con el que se ingresó: "operario" o "supervisor"
+    onLoginExitoso: (String) -> Unit,
     onVolver: () -> Unit
 ) {
     // Mensajes al pie de la pantalla (Snackbar)
@@ -46,7 +47,7 @@ fun LoginScreen(
         ) {
             AriztiaHeader(
                 titulo = "Iniciar sesión",
-                subtitulo = "Ingresa con tu usuario y contraseña"
+                subtitulo = "Tu usuario define tu perfil: operario o supervisor"
             )
 
             Column(
@@ -127,8 +128,9 @@ fun LoginScreen(
                             errorUsuario = resultado.errorUsuario
                             errorClave = resultado.errorClave
 
-                            if (resultado.exitoso) {
-                                onLoginExitoso()
+                            val perfil = resultado.perfil
+                            if (resultado.exitoso && perfil != null) {
+                                onLoginExitoso(perfil)
                             } else {
                                 scope.launch {
                                     snackbarHostState.showSnackbar(
@@ -142,6 +144,7 @@ fun LoginScreen(
 
                 Text(
                     "Usuarios de prueba: operario o supervisor, contraseña 1234",
+                    style = MaterialTheme.typography.bodyMedium,
                     color = TextSecondary
                 )
 
