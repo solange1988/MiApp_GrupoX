@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -59,16 +60,23 @@ fun LoginScreen(
             ) {
                 AriztiaWhiteCard {
                     // Usuario: ícono de persona y advertencia si hay error
-                    AriztiaTextField(
-                        value = usuario,
-                        onValueChange = {
-                            usuario = it
-                            errorUsuario = null
-                        },
-                        label = "Usuario",
-                        iconoInicial = Icons.Default.Person,
-                        error = errorUsuario
-                    )
+                    // (el Box lleva el testTag para las pruebas de interfaz)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("campo_usuario")
+                    ) {
+                        AriztiaTextField(
+                            value = usuario,
+                            onValueChange = {
+                                usuario = it
+                                errorUsuario = null
+                            },
+                            label = "Usuario",
+                            iconoInicial = Icons.Default.Person,
+                            error = errorUsuario
+                        )
+                    }
 
                     Spacer(Modifier.height(8.dp))
 
@@ -114,7 +122,9 @@ fun LoginScreen(
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Password
                         ),
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("campo_clave"),
                         singleLine = true
                     )
 
@@ -138,7 +148,10 @@ fun LoginScreen(
                                     )
                                 }
                             }
-                        }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("boton_ingresar")
                     )
                 }
 

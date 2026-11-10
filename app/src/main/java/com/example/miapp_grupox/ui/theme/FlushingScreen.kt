@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.example.miapp_grupox.model.FlusingEntity
@@ -121,7 +122,9 @@ fun FlusingScreen(
             )
 
             LazyColumn(
-                modifier = Modifier.padding(horizontal = 16.dp),
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .testTag("lista_flushing"),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 item {
@@ -287,7 +290,10 @@ fun FlusingScreen(
                                         )
                                     }
                                 }
-                            }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("boton_guardar_flushing")
                         )
                     }
                 }
@@ -351,7 +357,9 @@ fun FlusingScreen(
                                     textoEdicion = registro.observaciones
                                     errorEdicion = null
                                 },
-                                modifier = Modifier.weight(1f),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .testTag("boton_editar_${registro.id}"),
                                 colors = ButtonDefaults.outlinedButtonColors(
                                     contentColor = AriztiaButtonRed
                                 )
@@ -363,7 +371,9 @@ fun FlusingScreen(
 
                             OutlinedButton(
                                 onClick = { registroAEliminar = registro },
-                                modifier = Modifier.weight(1f),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .testTag("boton_eliminar_${registro.id}"),
                                 colors = ButtonDefaults.outlinedButtonColors(
                                     contentColor = AriztiaButtonRed
                                 )
@@ -396,13 +406,16 @@ fun FlusingScreen(
                 )
             },
             confirmButton = {
-                TextButton(onClick = {
-                    onEliminar(registro.id)
-                    registroAEliminar = null
-                    scope.launch {
-                        snackbarHostState.showSnackbar("Registro eliminado")
-                    }
-                }) {
+                TextButton(
+                    onClick = {
+                        onEliminar(registro.id)
+                        registroAEliminar = null
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Registro eliminado")
+                        }
+                    },
+                    modifier = Modifier.testTag("confirmar_eliminar")
+                ) {
                     Text("Eliminar", color = AriztiaButtonRed)
                 }
             },
