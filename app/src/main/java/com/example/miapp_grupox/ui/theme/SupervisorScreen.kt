@@ -1,4 +1,3 @@
-
 package com.example.miapp_grupox.ui.theme
 
 import androidx.compose.foundation.background
@@ -10,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.miapp_grupox.model.FlusingEntity
 import com.example.miapp_grupox.model.LineBebedero
+import com.example.miapp_grupox.viewmodel.ClimaUiState
 
 @Composable
 fun SupervisorScreen(
@@ -18,7 +18,9 @@ fun SupervisorScreen(
     onTemperaturas: () -> Unit,
     onAlertas: () -> Unit,
     onFlushing: () -> Unit,
-    onInicio: () -> Unit
+    onInicio: () -> Unit,
+    clima: ClimaUiState = ClimaUiState(),
+    onReintentarClima: () -> Unit = {}
 ) {
     val criticas = lineas.count { it.estado == "Crítico" }
     val advertencias = lineas.count { it.estado == "Advertencia" }
@@ -72,6 +74,44 @@ fun SupervisorScreen(
                         color = EstadoNormal,
                         modifier = Modifier.weight(1f)
                     )
+                }
+            }
+
+            // Clima ambiental (API externa Open-Meteo)
+            item {
+                AriztiaWhiteCard {
+                    Text(
+                        "Clima en Melipilla",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    Text(
+                        "Temperatura ambiente actual (Open-Meteo)",
+                        color = TextSecondary
+                    )
+                    Spacer(Modifier.height(8.dp))
+
+                    when {
+                        clima.cargando -> {
+                            CircularProgressIndicator(color = EstadoCritico)
+                        }
+
+                        clima.error != null -> {
+                            Text(clima.error, color = EstadoAdvertenciaTexto)
+                            Spacer(Modifier.height(8.dp))
+                            AriztiaSecondaryButton("Reintentar", onReintentarClima)
+                        }
+
+                        clima.temperatura != null -> {
+                            Text(
+                                "${clima.temperatura} °C",
+                                style = MaterialTheme.typography.headlineMedium
+                            )
+                            Text(
+                                "Humedad: ${clima.humedad ?: "-"} %",
+                                color = TextSecondary
+                            )
+                        }
+                    }
                 }
             }
 

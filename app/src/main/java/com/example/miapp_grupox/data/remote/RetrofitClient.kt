@@ -1,5 +1,6 @@
 package com.example.miapp_grupox.data.remote
 
+import com.example.miapp_grupox.data.remote.api.ClimaApi
 import com.example.miapp_grupox.data.remote.api.FlushingApi
 import com.example.miapp_grupox.data.remote.api.InstalacionesApi
 import com.example.miapp_grupox.data.remote.api.MonitoreoApi
@@ -11,21 +12,29 @@ object RetrofitClient {
     // 10.0.2.2 = el "localhost" de tu PC visto desde el emulador
     private const val HOST = "http://10.0.2.2"
 
-    private fun crear(puerto: Int): Retrofit =
+    private fun crear(baseUrl: String): Retrofit =
         Retrofit.Builder()
-            .baseUrl("$HOST:$puerto/")
+            .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
+    // ---------- Microservicios propios ----------
+
     val instalacionesApi: InstalacionesApi by lazy {
-        crear(8081).create(InstalacionesApi::class.java)
+        crear("$HOST:8081/").create(InstalacionesApi::class.java)
     }
 
     val monitoreoApi: MonitoreoApi by lazy {
-        crear(8082).create(MonitoreoApi::class.java)
+        crear("$HOST:8082/").create(MonitoreoApi::class.java)
     }
 
     val flushingApi: FlushingApi by lazy {
-        crear(8083).create(FlushingApi::class.java)
+        crear("$HOST:8083/").create(FlushingApi::class.java)
+    }
+
+    // ---------- API externa ----------
+
+    val climaApi: ClimaApi by lazy {
+        crear("https://api.open-meteo.com/").create(ClimaApi::class.java)
     }
 }
