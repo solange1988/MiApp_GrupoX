@@ -19,6 +19,7 @@ import com.example.miapp_grupox.ui.theme.SupervisorScreen
 import com.example.miapp_grupox.ui.theme.TemperaturasScreen
 import com.example.miapp_grupox.viewmodel.AlertasViewModel
 import com.example.miapp_grupox.viewmodel.BebederoViewModel
+import com.example.miapp_grupox.viewmodel.ClimaViewModel
 import com.example.miapp_grupox.viewmodel.MainViewModel
 
 class MainActivity : ComponentActivity() {
@@ -35,6 +36,9 @@ class MainActivity : ComponentActivity() {
     private val alertasViewModel: AlertasViewModel by viewModels {
         AlertasViewModel.factory(application)
     }
+
+    // API externa: clima de Melipilla (Open-Meteo)
+    private val climaViewModel: ClimaViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,9 +99,13 @@ class MainActivity : ComponentActivity() {
                     )
 
                     "supervisor" -> {
-                        // Refresca el resumen con los datos del servidor al entrar
+                        val estadoClima by climaViewModel.estado
+                            .collectAsStateWithLifecycle()
+
+                        // Al entrar: refresca datos del servidor y el clima
                         LaunchedEffect(Unit) {
                             bebederoViewModel.sincronizar()
+                            climaViewModel.cargarClima()
                         }
 
                         SupervisorScreen(
@@ -106,7 +114,9 @@ class MainActivity : ComponentActivity() {
                             onTemperaturas = { pantalla = "temperaturas" },
                             onAlertas = { pantalla = "alertas" },
                             onFlushing = { pantalla = "flushing" },
-                            onInicio = { pantalla = "inicio" }
+                            onInicio = { pantalla = "inicio" },
+                            clima = estadoClima,
+                            onReintentarClima = { climaViewModel.cargarClima() }
                         )
                     }
 
