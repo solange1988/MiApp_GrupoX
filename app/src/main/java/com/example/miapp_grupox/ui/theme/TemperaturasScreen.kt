@@ -26,7 +26,8 @@ import kotlinx.coroutines.launch
 fun TemperaturasScreen(
     lineas: List<LineBebedero>,
     onGuardar: (String, String, String, Double) -> Unit,
-    onVolver: () -> Unit
+    onVolver: () -> Unit,
+    aviso: String? = null
 ) {
     val context = LocalContext.current
 
@@ -61,6 +62,15 @@ fun TemperaturasScreen(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                // Aviso de conexión con el servidor (solo aparece si hay problema)
+                aviso?.let { mensaje ->
+                    item {
+                        AriztiaWhiteCard {
+                            Text(mensaje, color = EstadoAdvertenciaTexto)
+                        }
+                    }
+                }
+
                 item {
                     AriztiaSectionTitle("Registrar medición")
                 }

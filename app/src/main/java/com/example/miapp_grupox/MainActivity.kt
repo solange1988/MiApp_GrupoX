@@ -23,7 +23,12 @@ import com.example.miapp_grupox.viewmodel.MainViewModel
 
 class MainActivity : ComponentActivity() {
 
-    private val bebederoViewModel: BebederoViewModel by viewModels()
+    // Líneas y temperaturas: sincroniza ms-instalaciones + ms-monitoreo con Room
+    private val bebederoViewModel: BebederoViewModel by viewModels {
+        BebederoViewModel.factory(application)
+    }
+
+    // Flushing (ms-flushing)
     private val mainViewModel: MainViewModel by viewModels()
 
     // Alertas desde ms-monitoreo (con respaldo en Room si no hay conexión)
@@ -37,6 +42,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             MiAppGrupoXTheme {
                 val lineas by bebederoViewModel.lineas
+                    .collectAsStateWithLifecycle()
+
+                // Aviso cuando no hay conexión con el servidor (null = todo bien)
+                val avisoTemperaturas by bebederoViewModel.aviso
                     .collectAsStateWithLifecycle()
 
                 val registros by mainViewModel.registros
@@ -85,27 +94,42 @@ class MainActivity : ComponentActivity() {
                         onInicio = { pantalla = "inicio" }
                     )
 
-                    "supervisor" -> SupervisorScreen(
-                        lineas = lineas,
-                        registros = registros,
-                        onTemperaturas = { pantalla = "temperaturas" },
-                        onAlertas = { pantalla = "alertas" },
-                        onFlushing = { pantalla = "flushing" },
-                        onInicio = { pantalla = "inicio" }
-                    )
+                    "supervisor" -> {
+                        // Refresca el resumen con los datos del servidor al entrar
+                        LaunchedEffect(Unit) {
+                            bebederoViewModel.sincronizar()
+                        }
 
-                    "temperaturas" -> TemperaturasScreen(
-                        lineas = lineas,
-                        onGuardar = { granja, galpon, linea, temperatura ->
-                            bebederoViewModel.guardarTemperatura(
-                                granja,
-                                galpon,
-                                linea,
-                                temperatura
-                            )
-                        },
-                        onVolver = { pantalla = perfil }
-                    )
+                        SupervisorScreen(
+                            lineas = lineas,
+                            registros = registros,
+                            onTemperaturas = { pantalla = "temperaturas" },
+                            onAlertas = { pantalla = "alertas" },
+                            onFlushing = { pantalla = "flushing" },
+                            onInicio = { pantalla = "inicio" }
+                        )
+                    }
+
+                    "temperaturas" -> {
+                        // Refresca las líneas con los datos del servidor al entrar
+                        LaunchedEffect(Unit) {
+                            bebederoViewModel.sincronizar()
+                        }
+
+                        TemperaturasScreen(
+                            lineas = lineas,
+                            onGuardar = { granja, galpon, linea, temperatura ->
+                                bebederoViewModel.guardarTemperatura(
+                                    granja,
+                                    galpon,
+                                    linea,
+                                    temperatura
+                                )
+                            },
+                            onVolver = { pantalla = perfil },
+                            aviso = avisoTemperaturas
+                        )
+                    }
 
                     "alertas" -> {
                         val estadoAlertas by alertasViewModel.estado
