@@ -13,6 +13,10 @@ interface FlusingDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertar(registro: FlusingEntity)
 
+    // NUEVO: inserta varios registros de una vez (al sincronizar con el servicio)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertarTodos(registros: List<FlusingEntity>)
+
     @Query("SELECT * FROM registros_flushing ORDER BY id DESC")
     fun obtenerTodos(): Flow<List<FlusingEntity>>
 
@@ -22,6 +26,10 @@ interface FlusingDao {
 
     @Query("DELETE FROM registros_flushing WHERE id = :id")
     suspend fun eliminar(id: Int)
+
+    // NUEVO: borra todo antes de cargar lo que viene del servicio
+    @Query("DELETE FROM registros_flushing")
+    suspend fun eliminarTodos()
 
     @Query("SELECT COUNT(*) FROM registros_flushing")
     suspend fun contar(): Int
