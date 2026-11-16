@@ -141,8 +141,11 @@ Cada microservicio tiene documentación Swagger en `http://localhost:<puerto>/sw
 
 ## APK firmado
 
-- APK release: _(ruta del archivo en el repositorio)_
-- Keystore (`.jks`): _(ruta del archivo en el repositorio)_
+- APK release: app/release/app-release.apk
+- Keystore (`.jks`): keystore/agrobebederos.jks
+- Alias: `agrobebederos`
+- Contraseña keystore y key: `agro1234`
+- Generado con: Build > Generate Signed App Bundle or APK > APK > release
 
 ### Capturas
 
