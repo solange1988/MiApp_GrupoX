@@ -82,12 +82,20 @@ class MainActivity : ComponentActivity() {
                         onVolver = { pantalla = "inicio" }
                     )
 
-                    "operario" -> OperarioScreen(
-                        onTemperaturas = { pantalla = "temperaturas" },
-                        onFlushing = { pantalla = "flushing" },
-                        onAlertas = { pantalla = "alertas" },
-                        onInicio = { pantalla = "inicio" }
-                    )
+                    "operario" -> {
+                        // Al entrar: trae las líneas del servidor para el resumen
+                        LaunchedEffect(Unit) {
+                            bebederoViewModel.sincronizar()
+                        }
+
+                        OperarioScreen(
+                            onTemperaturas = { pantalla = "temperaturas" },
+                            onFlushing = { pantalla = "flushing" },
+                            onAlertas = { pantalla = "alertas" },
+                            onInicio = { pantalla = "inicio" },
+                            lineas = lineas
+                        )
+                    }
 
                     "supervisor" -> {
                         val estadoClima by climaViewModel.estado
@@ -107,7 +115,11 @@ class MainActivity : ComponentActivity() {
                             onFlushing = { pantalla = "flushing" },
                             onInicio = { pantalla = "inicio" },
                             clima = estadoClima,
-                            onReintentarClima = { climaViewModel.cargarClima() }
+                            onReintentarClima = { climaViewModel.cargarClima() },
+                            onSincronizar = {
+                                bebederoViewModel.sincronizar()
+                                climaViewModel.cargarClima()
+                            }
                         )
                     }
 
